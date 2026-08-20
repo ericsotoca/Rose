@@ -33,6 +33,9 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
 
   const categories = ['Tous', 'Romance', 'Désir', 'Intime', 'Après'];
 
+  // Load and cache voices for synthesis
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+
   useEffect(() => {
     const saved = localStorage.getItem('lovers_custom_phrases');
     if (saved) {
@@ -40,6 +43,17 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
         setCustomPhrases(JSON.parse(saved));
       } catch (e) {
         console.error("Error reading custom phrases", e);
+      }
+    }
+
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      const loadVoices = () => {
+        const availableVoices = window.speechSynthesis.getVoices();
+        setVoices(availableVoices);
+      };
+      loadVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
       }
     }
   }, []);
@@ -61,15 +75,37 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
     // Stop any ongoing speech
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = langCode;
-    utterance.rate = 0.85; // slightly slower for better learning
+    // Clean up text to replace slashes with a natural pause (comma + space)
+    // to prevent the TTS engine from pronouncing "barre oblique" or "slash"
+    const cleanedText = text.replace(/\s*\/\s*/g, ', ');
 
-    // Find a voice matching the language if possible
-    const voices = window.speechSynthesis.getVoices();
-    const matchingVoice = voices.find(v => v.lang.startsWith(langCode.split('-')[0]));
+    const utterance = new SpeechSynthesisUtterance(cleanedText);
+    utterance.lang = langCode;
+    utterance.rate = langCode === 'th-TH' ? 0.8 : 0.85; // slightly slower for better learning
+
+    // Find the best voice matching the language code
+    const currentVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices();
+    const targetLang = langCode.toLowerCase().replace('_', '-');
+    const targetLangPrefix = targetLang.split('-')[0];
+
+    // Try exact match first (e.g. 'th-th' or 'fr-fr')
+    let matchingVoice = currentVoices.find(v => {
+      const voiceLang = v.lang.toLowerCase().replace('_', '-');
+      return voiceLang === targetLang;
+    });
+
+    // Fallback to prefix match (e.g. starts with 'th')
+    if (!matchingVoice) {
+      matchingVoice = currentVoices.find(v => {
+        const voiceLang = v.lang.toLowerCase().replace('_', '-');
+        return voiceLang.startsWith(targetLangPrefix);
+      });
+    }
+
     if (matchingVoice) {
       utterance.voice = matchingVoice;
+    } else {
+      console.warn(`No specific voice matching ${langCode} found. Using default.`);
     }
 
     utterance.onstart = () => setIsPlayingId(id);
