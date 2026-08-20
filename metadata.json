@@ -1,6 +1,6 @@
 {
-  "name": "Harmonie - EMDR LMS & Espace Complice",
-  "description": "Une plateforme d'apprentissage clinique EMDR (Modèle TAI) combinée à un espace intime d'apprentissage linguistique multilingue (Français, Anglais, Thaï) pour couples.",
+  "name": "Harmonie - Espace Complice",
+  "description": "Un espace d'apprentissage linguistique multilingue intime et complice (Français, Anglais, Thaï) pour couple.",
   "requestFramePermissions": ["vibrate"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
