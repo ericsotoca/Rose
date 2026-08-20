@@ -201,8 +201,8 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
 
       {/* Control Navigation Bars - Highly ergonomic for mobile screens */}
       <div className="flex flex-col gap-3 bg-[#161618] p-3 rounded-xl border border-slate-800/40 shadow-sm">
-        {/* Categories horizontally scrollable bar with touch indicators */}
-        <div className="flex gap-1.5 overflow-x-auto w-full pb-1.5 scrollbar-none snap-x snap-mandatory">
+        {/* Categories grid layout - completely visible directly on mobile without scrolling */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 w-full">
           {categories.map(cat => (
             <button
               key={cat.id}
@@ -211,15 +211,15 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                 setCardIndex(0);
                 setIsFlipped(false);
               }}
-              className={`px-3.5 py-2 rounded-full text-xs font-bold border transition-all whitespace-nowrap min-h-[38px] flex items-center justify-center gap-1.5 snap-start ${
+              className={`px-2.5 py-2.5 rounded-xl text-xs font-black border transition-all flex items-center justify-center gap-1.5 text-center min-h-[44px] ${
                 selectedCategory === cat.id
-                  ? 'border-pink-500 bg-pink-950/40 text-pink-300 shadow-inner'
+                  ? 'border-pink-500 bg-pink-950/60 text-pink-300 shadow-md ring-1 ring-pink-500/20'
                   : 'border-slate-800/80 bg-[#111113] text-slate-400 hover:bg-slate-850'
-              }`}
+              } ${cat.id === 'Tous' ? 'col-span-2 sm:col-span-1' : 'col-span-1'}`}
               id={`btn-cat-${cat.id}`}
             >
               <span>{cat.fr} / {cat.th}</span>
-              {cat.id === 'Intime' && <span className="text-[10px]">🔞</span>}
+              {cat.id === 'Intime' && <span className="text-[10px] shrink-0">🔞</span>}
             </button>
           ))}
         </div>
