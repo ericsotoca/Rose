@@ -552,11 +552,6 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                       <p className="text-sm text-pink-300 italic font-medium leading-relaxed">
                         Phonétique : <strong className="font-bold text-pink-100">{phrase.thaiPhonetic}</strong>
                       </p>
-                      {phrase.frenchPhoneticForThai && (
-                        <p className="text-xs text-slate-400 leading-snug">
-                          Aide pour elle : {phrase.frenchPhoneticForThai}
-                        </p>
-                      )}
                     </div>
 
                     {/* 3. French Translation */}
