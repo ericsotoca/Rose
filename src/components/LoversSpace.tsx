@@ -189,13 +189,13 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
   return (
     <div className="space-y-5" id="lovers-workspace">
       {/* Introduction Hero Section - Super compact & simplified */}
-      <div className="bg-gradient-to-r from-pink-950/20 via-rose-950/10 to-amber-950/20 p-4 rounded-xl border border-pink-900/20 text-center space-y-1.5 shadow-sm">
+      <div className="bg-gradient-to-r from-pink-950/20 via-rose-950/10 to-amber-950/20 p-3 rounded-xl border border-pink-900/20 text-center space-y-1 shadow-sm">
         <h2 className="text-base sm:text-lg font-black text-white flex items-center justify-center gap-1.5">
           <Heart className="fill-pink-500 text-pink-500 shrink-0" size={16} />
           <span>L'Espace Complice • ภาษาความรัก</span>
         </h2>
-        <p className="text-xs text-slate-300 max-w-lg mx-auto">
-          Dictionnaire amoureux bilingue 🇫🇷 🇬🇧 🇹🇭. Exprimez vos désirs en toute complicité.
+        <p className="text-base sm:text-lg text-slate-300 max-w-lg mx-auto tracking-widest">
+          🇬🇧 🇹🇭 🇫🇷
         </p>
       </div>
 
