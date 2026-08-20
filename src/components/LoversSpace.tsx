@@ -244,39 +244,39 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
 
       {/* FLASHCARD INTERACTIVE GAME VIEW - FULLSCREEN OVERLAY ON ACTIVE */}
       {flashcardMode && (
-        <div className="fixed inset-0 z-50 bg-gradient-to-b from-[#1C121A] via-[#100A10] to-[#080508] flex flex-col justify-between p-4 sm:p-6 overflow-hidden h-[100dvh] w-full" id="fc-fullscreen-mode">
+        <div className="fixed inset-0 z-50 bg-gradient-to-b from-[#1C121A] via-[#100A10] to-[#080508] flex flex-col justify-between p-3 sm:p-5 overflow-hidden h-[100dvh] w-full select-none" id="fc-fullscreen-mode">
           {/* Soft luxury backlights */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-1/3 left-1/4 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Fullscreen Header */}
-          <div className="flex items-center justify-between w-full border-b border-white/5 pb-3 relative z-10">
+          <div className="flex items-center justify-between w-full max-w-xl mx-auto border-b border-white/10 pb-2.5 shrink-0 relative z-10">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black text-pink-300 bg-pink-950/60 px-3.5 py-1.5 rounded-full uppercase border border-pink-500/20 shadow-sm">
+              <span className="text-xs sm:text-sm font-black text-pink-300 bg-pink-950/70 px-4 py-1.5 rounded-full uppercase border border-pink-500/30 shadow-sm">
                 {badgeLabel}
               </span>
             </div>
             
             <button
               onClick={() => setFlashcardMode(false)}
-              className="px-3.5 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-lg text-xs font-extrabold border border-white/10 transition-colors"
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 active:scale-95 text-slate-200 hover:text-white rounded-xl text-xs sm:text-sm font-black border border-white/15 transition-all"
               id="btn-close-fullscreen-fc"
             >
               ปิด × Quitter
             </button>
           </div>
 
-          {/* Center Card Container */}
-          <div className="flex-grow flex flex-col justify-center items-center py-6 relative z-10 w-full max-w-md mx-auto">
+          {/* Center Card Container - Fills all available screen height with no dead space */}
+          <div className="flex-1 flex flex-col justify-between w-full max-w-xl mx-auto min-h-0 py-2 relative z-10">
             {/* Multi-language role toggle selector inside fullscreen */}
-            <div className="grid grid-cols-2 gap-2 w-full bg-[#121214] p-1 rounded-xl border border-slate-850 mb-6">
+            <div className="grid grid-cols-2 gap-2 w-full bg-[#140D14] p-1.5 rounded-2xl border border-white/10 mb-2 shrink-0 shadow-lg">
               <button
                 onClick={() => {
                   setFlashcardRole('her');
                   setIsFlipped(false);
                   setCardIndex(0);
                 }}
-                className={`py-2 px-1 rounded-lg text-xs font-extrabold transition-all text-center ${
+                className={`min-h-[44px] py-2 px-2 rounded-xl text-xs sm:text-sm font-black transition-all text-center flex items-center justify-center ${
                   flashcardRole === 'her'
                     ? 'bg-pink-600 text-white shadow-md'
                     : 'text-slate-400 hover:text-slate-200'
@@ -292,7 +292,7 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                   setIsFlipped(false);
                   setCardIndex(0);
                 }}
-                className={`py-2 px-1 rounded-lg text-xs font-extrabold transition-all text-center ${
+                className={`min-h-[44px] py-2 px-2 rounded-xl text-xs sm:text-sm font-black transition-all text-center flex items-center justify-center ${
                   flashcardRole === 'him'
                     ? 'bg-pink-600 text-white shadow-md'
                     : 'text-slate-400 hover:text-slate-200'
@@ -304,12 +304,12 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
             </div>
 
             {filteredPhrases.length > 0 ? (
-              <div className="w-full flex-grow flex flex-col justify-between max-h-[58vh] sm:max-h-[62vh] space-y-4">
-                {/* 3D Flip Card - Large vertical layout */}
+              <div className="w-full flex-1 flex flex-col justify-between min-h-0 gap-2">
+                {/* 3D Flip Card - Large full-height layout */}
                 <div 
                   onClick={() => setIsFlipped(!isFlipped)}
-                  className={`relative w-full flex-grow h-[42vh] min-h-[300px] rounded-2xl cursor-pointer select-none transition-all duration-500 [transform-style:preserve-3d] ${
-                    isFlipped ? '[transform:rotateY(180deg)] shadow-2xl' : 'shadow-xl border border-white/10'
+                  className={`relative w-full flex-1 min-h-[340px] rounded-3xl cursor-pointer select-none transition-all duration-500 [transform-style:preserve-3d] ${
+                    isFlipped ? '[transform:rotateY(180deg)] shadow-2xl' : 'shadow-2xl border border-white/15'
                   }`}
                   id="flashcard-body"
                 >
@@ -317,19 +317,21 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                   {flashcardRole === 'him' && (
                     <>
                       {/* CARD FRONT: French */}
-                      <div className="absolute inset-0 bg-[#1D161E]/95 border border-pink-500/20 rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden] shadow-inner">
-                        <span className="text-[10px] font-black text-pink-400 tracking-widest uppercase flex items-center gap-1 bg-pink-950/40 px-3 py-1 rounded-full">
-                          <Heart size={11} className="text-pink-500 fill-pink-500 animate-pulse" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#241520] to-[#120B11] border-2 border-pink-500/30 rounded-3xl p-5 sm:p-8 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden] shadow-2xl shadow-pink-950/50">
+                        <span className="text-xs sm:text-sm font-black text-pink-300 tracking-wider uppercase flex items-center gap-1.5 bg-pink-950/60 px-4 py-1.5 rounded-full border border-pink-500/30">
+                          <Heart size={13} className="text-pink-500 fill-pink-500 animate-pulse" />
                           Pour Lui • สำหรับเขา
                         </span>
                         
-                        <div className="space-y-3 py-4 my-auto">
-                          <p className="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed px-2">
+                        <div className="space-y-4 py-4 my-auto w-full">
+                          <p className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-snug tracking-tight px-2 drop-shadow-sm">
                             {filteredPhrases[cardIndex].french}
                           </p>
-                          <p className="text-xs text-pink-400 font-bold bg-pink-500/10 px-3.5 py-1.5 rounded-full inline-block">
-                            แตะเพื่อดูคำแปล ➔
-                          </p>
+                          <div>
+                            <span className="text-xs sm:text-sm text-pink-300 font-bold bg-pink-500/20 border border-pink-500/30 px-4 py-2 rounded-full inline-block shadow-sm">
+                              แตะเพื่อดูคำแปล ➔
+                            </span>
+                          </div>
                         </div>
 
                         <button
@@ -337,44 +339,44 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                             e.stopPropagation();
                             handleSpeak(filteredPhrases[cardIndex].french, 'fr-FR', filteredPhrases[cardIndex].id + '_fc_fr_front');
                           }}
-                          className="min-h-[44px] px-5 rounded-full bg-pink-600/15 hover:bg-pink-600/30 text-pink-300 border border-pink-500/20 transition-all flex items-center gap-1.5 text-xs font-bold"
+                          className="min-h-[50px] px-7 rounded-2xl bg-pink-600 hover:bg-pink-500 active:scale-95 text-white font-extrabold shadow-lg shadow-pink-600/30 flex items-center gap-2.5 text-sm sm:text-base transition-all"
                         >
-                          <Volume2 size={15} /> <span>Écouter 🇫🇷</span>
+                          <Volume2 size={18} /> <span>Écouter 🇫🇷</span>
                         </button>
                       </div>
 
                       {/* CARD BACK: English Answer */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-[#2E1825] to-[#140C12] rounded-2xl p-6 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border border-pink-500/30 shadow-2xl">
-                        <span className="text-[10px] font-black text-amber-300 tracking-widest uppercase flex items-center gap-1 bg-amber-950/40 px-3 py-1 rounded-full">
-                          <Sparkles size={11} className="text-amber-400 animate-bounce" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#331525] via-[#220E1A] to-[#140810] rounded-3xl p-5 sm:p-8 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border-2 border-amber-500/40 shadow-2xl shadow-amber-950/40">
+                        <span className="text-xs sm:text-sm font-black text-amber-300 tracking-wider uppercase flex items-center gap-1.5 bg-amber-950/60 px-4 py-1.5 rounded-full border border-amber-500/30">
+                          <Sparkles size={13} className="text-amber-400 animate-bounce" />
                           English 🇬🇧 เฉลย
                         </span>
 
                         <div className="space-y-4 w-full my-auto py-2">
-                          <p className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug tracking-tight px-1">
+                          <p className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-snug tracking-tight px-1 drop-shadow-md">
                             {filteredPhrases[cardIndex].english}
                           </p>
                           
                           {/* Reference translation in Thai */}
-                          <div className="bg-[#120A10]/90 p-3 rounded-xl border border-white/5 max-w-[95%] mx-auto shadow-inner">
-                            <p className="text-xs text-pink-300 font-extrabold">
+                          <div className="bg-[#150A12]/95 p-4 sm:p-5 rounded-2xl border border-white/10 max-w-full w-full mx-auto shadow-inner">
+                            <p className="text-base sm:text-lg text-pink-200 font-extrabold">
                               🇹🇭 {filteredPhrases[cardIndex].thai}
                             </p>
-                            <p className="text-[10px] text-slate-400 italic mt-0.5">
+                            <p className="text-xs sm:text-sm text-slate-400 italic mt-1 font-medium">
                               {filteredPhrases[cardIndex].thaiPhonetic}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSpeak(filteredPhrases[cardIndex].english, 'en-US', filteredPhrases[cardIndex].id + '_fc_en_back');
                             }}
-                            className="min-h-[44px] px-5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-900/30 transition-colors flex items-center gap-1.5 text-xs font-bold"
+                            className="min-h-[50px] px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black shadow-lg shadow-amber-500/20 flex items-center gap-2 text-sm sm:text-base transition-all"
                           >
-                            <Volume2 size={15} />
+                            <Volume2 size={18} />
                             <span>Listen 🇬🇧</span>
                           </button>
                           <button
@@ -382,9 +384,9 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                               e.stopPropagation();
                               handleCopy(filteredPhrases[cardIndex].english, filteredPhrases[cardIndex].id + '_fc_copy');
                             }}
-                            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 flex items-center justify-center transition-colors"
+                            className="min-h-[50px] min-w-[50px] rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-slate-200 flex items-center justify-center border border-white/15 transition-colors"
                           >
-                            <Copy size={15} />
+                            <Copy size={18} />
                           </button>
                         </div>
                       </div>
@@ -395,22 +397,24 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                   {flashcardRole === 'her' && (
                     <>
                       {/* CARD FRONT: Thai */}
-                      <div className="absolute inset-0 bg-[#1D161E]/95 border border-pink-500/20 rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden] shadow-inner">
-                        <span className="text-[10px] font-black text-pink-400 tracking-widest uppercase flex items-center gap-1 bg-pink-950/40 px-3 py-1 rounded-full">
-                          <Heart size={11} className="text-pink-500 fill-pink-500 animate-pulse" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#241520] to-[#120B11] border-2 border-pink-500/30 rounded-3xl p-5 sm:p-8 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden] shadow-2xl shadow-pink-950/50">
+                        <span className="text-xs sm:text-sm font-black text-pink-300 tracking-wider uppercase flex items-center gap-1.5 bg-pink-950/60 px-4 py-1.5 rounded-full border border-pink-500/30">
+                          <Heart size={13} className="text-pink-500 fill-pink-500 animate-pulse" />
                           Pour Elle • สำหรับเธอ
                         </span>
                         
-                        <div className="space-y-3 py-4 my-auto">
-                          <p className="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed px-2">
+                        <div className="space-y-4 py-4 my-auto w-full">
+                          <p className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-snug tracking-tight px-2 drop-shadow-sm">
                             {filteredPhrases[cardIndex].thai}
                           </p>
-                          <p className="text-xs text-pink-300 italic font-medium px-4">
+                          <p className="text-base sm:text-lg text-pink-300 font-semibold italic px-3">
                             {filteredPhrases[cardIndex].thaiPhonetic}
                           </p>
-                          <p className="text-xs text-pink-400 font-bold bg-pink-500/10 px-3.5 py-1.5 rounded-full inline-block mt-2">
-                            แตะเพื่อดูเฉลยภาษาอังกฤษ ➔
-                          </p>
+                          <div>
+                            <span className="text-xs sm:text-sm text-pink-300 font-bold bg-pink-500/20 border border-pink-500/30 px-4 py-2 rounded-full inline-block shadow-sm">
+                              แตะเพื่อดูเฉลยภาษาอังกฤษ ➔
+                            </span>
+                          </div>
                         </div>
 
                         <button
@@ -418,50 +422,50 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                             e.stopPropagation();
                             handleSpeak(filteredPhrases[cardIndex].thai, 'th-TH', filteredPhrases[cardIndex].id + '_fc_th_front');
                           }}
-                          className="min-h-[44px] px-5 rounded-full bg-pink-600/15 hover:bg-pink-600/30 text-pink-300 border border-pink-500/20 transition-all flex items-center gap-1.5 text-xs font-bold"
+                          className="min-h-[50px] px-7 rounded-2xl bg-pink-600 hover:bg-pink-500 active:scale-95 text-white font-extrabold shadow-lg shadow-pink-600/30 flex items-center gap-2.5 text-sm sm:text-base transition-all"
                         >
-                          <Volume2 size={15} /> <span>ฟังเสียง 🇹🇭</span>
+                          <Volume2 size={18} /> <span>ฟังเสียง 🇹🇭</span>
                         </button>
                       </div>
 
                       {/* CARD BACK: English Answer */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-[#2E1825] to-[#140C12] rounded-2xl p-6 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border border-pink-500/30 shadow-2xl">
-                        <span className="text-[10px] font-black text-amber-300 tracking-widest uppercase flex items-center gap-1 bg-amber-950/40 px-3 py-1 rounded-full">
-                          <Sparkles size={11} className="text-amber-400 animate-bounce" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#331525] via-[#220E1A] to-[#140810] rounded-3xl p-5 sm:p-8 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border-2 border-amber-500/40 shadow-2xl shadow-amber-950/40">
+                        <span className="text-xs sm:text-sm font-black text-amber-300 tracking-wider uppercase flex items-center gap-1.5 bg-amber-950/60 px-4 py-1.5 rounded-full border border-amber-500/30">
+                          <Sparkles size={13} className="text-amber-400 animate-bounce" />
                           English 🇬🇧 เฉลย
                         </span>
 
                         <div className="space-y-4 w-full my-auto py-2">
-                          <p className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug tracking-tight px-1">
+                          <p className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-snug tracking-tight px-1 drop-shadow-md">
                             {filteredPhrases[cardIndex].english}
                           </p>
                           
                           {/* Reference translation in French */}
-                          <div className="bg-[#120A10]/90 p-3 rounded-xl border border-white/5 max-w-[95%] mx-auto shadow-inner">
-                            <p className="text-xs text-pink-300 font-semibold">
+                          <div className="bg-[#150A12]/95 p-4 sm:p-5 rounded-2xl border border-white/10 max-w-full w-full mx-auto shadow-inner">
+                            <p className="text-base sm:text-lg text-pink-200 font-extrabold">
                               🇫🇷 {filteredPhrases[cardIndex].french}
                             </p>
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSpeak(filteredPhrases[cardIndex].english, 'en-US', filteredPhrases[cardIndex].id + '_fc_en_her');
                             }}
-                            className="min-h-[44px] px-5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-900/30 transition-colors flex items-center gap-1.5 text-xs font-bold"
+                            className="min-h-[50px] px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black shadow-lg shadow-amber-500/20 flex items-center gap-2 text-sm sm:text-base transition-all"
                           >
-                            <Volume2 size={15} /> <span>Listen 🇬🇧</span>
+                            <Volume2 size={18} /> <span>Listen 🇬🇧</span>
                           </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCopy(filteredPhrases[cardIndex].english, filteredPhrases[cardIndex].id + '_fc_copy_en_her');
                             }}
-                            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 flex items-center justify-center transition-colors"
+                            className="min-h-[50px] min-w-[50px] rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-slate-200 flex items-center justify-center border border-white/15 transition-colors"
                           >
-                            <Copy size={15} />
+                            <Copy size={18} />
                           </button>
                         </div>
                       </div>
@@ -470,22 +474,22 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                 </div>
 
                 {/* Fullscreen Navigation footer - comfortable thumb placement and larger hit area */}
-                <div className="flex items-center justify-between px-1 pt-1">
+                <div className="w-full flex items-center justify-between gap-3 pt-1 shrink-0">
                   <button 
                     onClick={prevCard}
-                    className="min-h-[48px] px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[11px] font-black text-slate-300 active:scale-95 transition-all flex-1 mr-3 max-w-[140px] flex items-center justify-center text-center"
+                    className="min-h-[52px] px-5 bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 rounded-2xl text-xs sm:text-sm font-black text-slate-200 transition-all flex-1 flex items-center justify-center text-center shadow-md"
                     id="btn-fc-prev"
                   >
                     ย้อนกลับ • Précédent
                   </button>
                   
-                  <span className="text-xs font-black text-pink-300 whitespace-nowrap bg-pink-950/40 px-3 py-2 rounded-full border border-pink-500/20">
+                  <span className="text-sm sm:text-base font-black text-pink-300 whitespace-nowrap bg-pink-950/70 px-4 py-3 rounded-2xl border border-pink-500/30 shadow-inner">
                     {cardIndex + 1} / {filteredPhrases.length}
                   </span>
                   
                   <button 
                     onClick={nextCard}
-                    className="min-h-[48px] px-4 bg-pink-600 hover:bg-pink-700 active:bg-pink-800 text-white rounded-2xl text-[11px] font-black active:scale-95 transition-all flex-1 ml-3 max-w-[140px] flex items-center justify-center text-center shadow-lg shadow-pink-600/20"
+                    className="min-h-[52px] px-5 bg-pink-600 hover:bg-pink-500 active:bg-pink-700 active:scale-95 text-white rounded-2xl text-xs sm:text-sm font-black transition-all flex-1 flex items-center justify-center text-center shadow-xl shadow-pink-600/30"
                     id="btn-fc-next"
                   >
                     ถัดไป • Suivant
@@ -496,9 +500,6 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
               <p className="text-center py-12 text-slate-400 italic">Aucune phrase dans cette catégorie.</p>
             )}
           </div>
-
-          {/* Spacer */}
-          <div className="h-6"></div>
         </div>
       )}
 
@@ -537,19 +538,19 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                     </div>
 
                     {/* French & English */}
-                    <div className="space-y-0.5">
-                      <p className="font-bold text-white text-[14px] leading-snug">{phrase.french}</p>
-                      <p className="text-xs text-slate-400 italic">🇬🇧 {phrase.english}</p>
+                    <div className="space-y-1">
+                      <p className="font-black text-white text-base sm:text-lg leading-snug">{phrase.french}</p>
+                      <p className="text-sm text-slate-300 font-medium italic">🇬🇧 {phrase.english}</p>
                     </div>
 
                     {/* Thai Translation */}
-                    <div className="bg-pink-950/5 p-2.5 rounded-lg border border-pink-900/10 space-y-1">
-                      <p className="font-extrabold text-pink-200 text-[15px] tracking-wide">🇹🇭 {phrase.thai}</p>
-                      <p className="text-xs text-pink-300 italic font-medium leading-relaxed">
-                        Phonétique : <strong className="font-semibold text-pink-200">{phrase.thaiPhonetic}</strong>
+                    <div className="bg-pink-950/20 p-3.5 rounded-xl border border-pink-900/30 space-y-1.5 shadow-inner">
+                      <p className="font-black text-pink-200 text-lg sm:text-xl tracking-wide">🇹🇭 {phrase.thai}</p>
+                      <p className="text-sm text-pink-300 italic font-medium leading-relaxed">
+                        Phonétique : <strong className="font-bold text-pink-100">{phrase.thaiPhonetic}</strong>
                       </p>
                       {phrase.frenchPhoneticForThai && (
-                        <p className="text-[10px] text-slate-400 leading-snug">
+                        <p className="text-xs text-slate-400 leading-snug">
                           Aide pour elle : {phrase.frenchPhoneticForThai}
                         </p>
                       )}
@@ -557,65 +558,65 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                   </div>
 
                   {/* Actions Bar */}
-                  <div className="border-t border-slate-800/40 pt-2 flex justify-between items-center">
-                    <div className="flex gap-1">
+                  <div className="border-t border-slate-800/60 pt-3 flex justify-between items-center">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleSpeak(phrase.french, 'fr-FR', phrase.id + '_fr')}
-                        className={`p-2 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-colors ${
+                        className={`min-h-[42px] px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all ${
                           isPlayingId === phrase.id + '_fr' 
-                            ? 'bg-blue-950/30 text-blue-200 border-blue-900/30' 
-                            : 'border-slate-800 hover:bg-slate-800/50 text-slate-300 bg-[#111113]'
+                            ? 'bg-blue-950/40 text-blue-200 border-blue-800 shadow-sm' 
+                            : 'border-slate-800 hover:bg-slate-800/60 text-slate-300 bg-[#111113]'
                         }`}
                         title="Prononcer le français"
                         id={`btn-speak-fr-${phrase.id}`}
                       >
-                        <Volume2 size={13} />
+                        <Volume2 size={15} />
                         <span>🇫🇷</span>
                       </button>
                       
                       <button
                         onClick={() => handleSpeak(phrase.english, 'en-US', phrase.id + '_en')}
-                        className={`p-2 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-colors ${
+                        className={`min-h-[42px] px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all ${
                           isPlayingId === phrase.id + '_en' 
-                            ? 'bg-amber-950/30 text-amber-200 border-amber-900/30' 
-                            : 'border-slate-800 hover:bg-slate-800/50 text-slate-300 bg-[#111113]'
+                            ? 'bg-amber-950/40 text-amber-200 border-amber-800 shadow-sm' 
+                            : 'border-slate-800 hover:bg-slate-800/60 text-slate-300 bg-[#111113]'
                         }`}
                         title="Prononcer l'anglais"
                         id={`btn-speak-en-${phrase.id}`}
                       >
-                        <Volume2 size={13} />
+                        <Volume2 size={15} />
                         <span>🇬🇧</span>
                       </button>
                       
                       <button
                         onClick={() => handleSpeak(phrase.thai, 'th-TH', phrase.id + '_th')}
-                        className={`p-2 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-colors ${
+                        className={`min-h-[42px] px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all ${
                           isPlayingId === phrase.id + '_th' 
-                            ? 'bg-pink-950/30 text-pink-200 border-pink-900/30' 
-                            : 'border-slate-800 hover:bg-slate-800/50 text-slate-300 bg-[#111113]'
+                            ? 'bg-pink-950/40 text-pink-200 border-pink-800 shadow-sm' 
+                            : 'border-slate-800 hover:bg-slate-800/60 text-slate-300 bg-[#111113]'
                         }`}
                         title="Prononcer le thaï"
                         id={`btn-speak-th-${phrase.id}`}
                       >
-                        <Volume2 size={13} />
+                        <Volume2 size={15} />
                         <span>🇹🇭</span>
                       </button>
                     </div>
 
                     <button
                       onClick={() => handleCopy(`${phrase.french} ➔ ${phrase.thai} (${phrase.thaiPhonetic})`, phrase.id)}
-                      className="min-h-[34px] px-2.5 rounded-lg border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white text-xs font-semibold flex items-center gap-1 transition-all bg-[#111113]"
+                      className="min-h-[42px] px-3.5 rounded-xl border border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all bg-[#111113]"
                       id={`btn-copy-phrase-${phrase.id}`}
                     >
                       {copiedId === phrase.id ? (
                         <>
-                          <Check size={11} className="text-green-500" />
-                          <span className="text-green-500 text-[11px]">Copié</span>
+                          <Check size={14} className="text-green-400" />
+                          <span className="text-green-400 text-xs">Copié</span>
                         </>
                       ) : (
                         <>
-                          <Copy size={11} />
-                          <span className="text-[11px]">Copier</span>
+                          <Copy size={14} />
+                          <span className="text-xs">Copier</span>
                         </>
                       )}
                     </button>
