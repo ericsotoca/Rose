@@ -32,7 +32,13 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
   const [flashcardRole, setFlashcardRole] = useState<'him' | 'her'>('him');
   const [showBuilder, setShowBuilder] = useState<boolean>(false);
 
-  const categories = ['Tous', 'Romance', 'Désir', 'Intime', 'Après'];
+  const categories = [
+    { id: 'Tous', fr: 'Tous', th: 'ทั้งหมด' },
+    { id: 'Romance', fr: 'Romance', th: 'โรแมนติก' },
+    { id: 'Désir', fr: 'Désir', th: 'ความปรารถนา' },
+    { id: 'Intime', fr: 'Intime', th: 'เรื่องลับ 🔞' },
+    { id: 'Après', fr: 'Après', th: 'หลังจากนั้น' }
+  ];
 
   // Load and cache voices for synthesis
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -177,6 +183,9 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
     }, 200);
   };
 
+  const activeCat = categories.find(c => c.id === selectedCategory);
+  const badgeLabel = activeCat ? `${activeCat.fr} / ${activeCat.th}` : selectedCategory;
+
   return (
     <div className="space-y-5" id="lovers-workspace">
       {/* Introduction Hero Section - Super compact & simplified */}
@@ -196,21 +205,21 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
         <div className="flex gap-1.5 overflow-x-auto w-full pb-1.5 scrollbar-none snap-x snap-mandatory">
           {categories.map(cat => (
             <button
-              key={cat}
+              key={cat.id}
               onClick={() => {
-                setSelectedCategory(cat);
+                setSelectedCategory(cat.id);
                 setCardIndex(0);
                 setIsFlipped(false);
               }}
               className={`px-3.5 py-2 rounded-full text-xs font-bold border transition-all whitespace-nowrap min-h-[38px] flex items-center justify-center gap-1.5 snap-start ${
-                selectedCategory === cat
+                selectedCategory === cat.id
                   ? 'border-pink-500 bg-pink-950/40 text-pink-300 shadow-inner'
                   : 'border-slate-800/80 bg-[#111113] text-slate-400 hover:bg-slate-850'
               }`}
-              id={`btn-cat-${cat}`}
+              id={`btn-cat-${cat.id}`}
             >
-              <span>{cat === 'Tous' ? 'Tout' : cat}</span>
-              {cat === 'Intime' && <span className="text-[10px]">🔞</span>}
+              <span>{cat.fr} / {cat.th}</span>
+              {cat.id === 'Intime' && <span className="text-[10px]">🔞</span>}
             </button>
           ))}
         </div>
@@ -223,11 +232,11 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
         >
           {flashcardMode ? (
             <>
-              <BookOpen size={14} /> <span>Mode Liste complète</span>
+              <BookOpen size={14} /> <span>Liste complète / รายการทั้งหมด</span>
             </>
           ) : (
             <>
-              <Layers size={14} /> <span>Mode Flashcards interactives</span>
+              <Layers size={14} /> <span>Flashcards / แฟลชการ์ด 🌟</span>
             </>
           )}
         </button>
@@ -235,24 +244,25 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
 
       {/* FLASHCARD INTERACTIVE GAME VIEW - FULLSCREEN OVERLAY ON ACTIVE */}
       {flashcardMode && (
-        <div className="fixed inset-0 z-50 bg-[#0A0A0C] flex flex-col justify-between p-4 sm:p-6 overflow-hidden h-[100dvh] w-full" id="fc-fullscreen-mode">
-          {/* Soft backlights */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 h-72 bg-pink-600/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="fixed inset-0 z-50 bg-gradient-to-b from-[#1C121A] via-[#100A10] to-[#080508] flex flex-col justify-between p-4 sm:p-6 overflow-hidden h-[100dvh] w-full" id="fc-fullscreen-mode">
+          {/* Soft luxury backlights */}
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-1/3 left-1/4 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Fullscreen Header */}
-          <div className="flex items-center justify-between w-full border-b border-slate-900 pb-3 relative z-10">
+          <div className="flex items-center justify-between w-full border-b border-white/5 pb-3 relative z-10">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-pink-400 bg-pink-950/50 px-2.5 py-1 rounded-full uppercase border border-pink-900/30">
-                {selectedCategory} {selectedCategory === 'Intime' ? '🔞' : ''}
+              <span className="text-[11px] font-black text-pink-300 bg-pink-950/60 px-3.5 py-1.5 rounded-full uppercase border border-pink-500/20 shadow-sm">
+                {badgeLabel}
               </span>
             </div>
             
             <button
               onClick={() => setFlashcardMode(false)}
-              className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white rounded-lg text-xs font-extrabold border border-slate-800/80 transition-colors"
+              className="px-3.5 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-lg text-xs font-extrabold border border-white/10 transition-colors"
               id="btn-close-fullscreen-fc"
             >
-              Quitter ×
+              ปิด × Quitter
             </button>
           </div>
 
@@ -260,22 +270,6 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
           <div className="flex-grow flex flex-col justify-center items-center py-6 relative z-10 w-full max-w-md mx-auto">
             {/* Multi-language role toggle selector inside fullscreen */}
             <div className="grid grid-cols-2 gap-2 w-full bg-[#121214] p-1 rounded-xl border border-slate-850 mb-6">
-              <button
-                onClick={() => {
-                  setFlashcardRole('him');
-                  setIsFlipped(false);
-                  setCardIndex(0);
-                }}
-                className={`py-2 px-1 rounded-lg text-xs font-extrabold transition-all text-center ${
-                  flashcardRole === 'him'
-                    ? 'bg-pink-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-                id="btn-fc-role-him"
-              >
-                Pour Lui (🇫🇷 ➔ 🇬🇧)
-              </button>
-              
               <button
                 onClick={() => {
                   setFlashcardRole('her');
@@ -291,15 +285,31 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
               >
                 สำหรับเธอ (🇹🇭 ➔ 🇬🇧)
               </button>
+
+              <button
+                onClick={() => {
+                  setFlashcardRole('him');
+                  setIsFlipped(false);
+                  setCardIndex(0);
+                }}
+                className={`py-2 px-1 rounded-lg text-xs font-extrabold transition-all text-center ${
+                  flashcardRole === 'him'
+                    ? 'bg-pink-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+                id="btn-fc-role-him"
+              >
+                Pour Lui (🇫🇷 ➔ 🇬🇧)
+              </button>
             </div>
 
             {filteredPhrases.length > 0 ? (
-              <div className="w-full space-y-6">
-                {/* 3D Flip Card */}
+              <div className="w-full flex-grow flex flex-col justify-between max-h-[58vh] sm:max-h-[62vh] space-y-4">
+                {/* 3D Flip Card - Large vertical layout */}
                 <div 
                   onClick={() => setIsFlipped(!isFlipped)}
-                  className={`relative w-full aspect-[4/3] rounded-2xl cursor-pointer select-none transition-all duration-500 [transform-style:preserve-3d] ${
-                    isFlipped ? '[transform:rotateY(180deg)] shadow-2xl shadow-pink-900/5' : 'shadow-lg border border-slate-850/80'
+                  className={`relative w-full flex-grow h-[42vh] min-h-[300px] rounded-2xl cursor-pointer select-none transition-all duration-500 [transform-style:preserve-3d] ${
+                    isFlipped ? '[transform:rotateY(180deg)] shadow-2xl' : 'shadow-xl border border-white/10'
                   }`}
                   id="flashcard-body"
                 >
@@ -307,18 +317,18 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                   {flashcardRole === 'him' && (
                     <>
                       {/* CARD FRONT: French */}
-                      <div className="absolute inset-0 bg-[#141416] border border-slate-850/80 rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden]">
-                        <span className="text-[9px] font-bold text-pink-400 tracking-widest uppercase flex items-center gap-1">
-                          <Heart size={10} className="text-pink-500 fill-pink-500 animate-pulse" />
-                          Pour Lui (Devinez l'Anglais)
+                      <div className="absolute inset-0 bg-[#1D161E]/95 border border-pink-500/20 rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden] shadow-inner">
+                        <span className="text-[10px] font-black text-pink-400 tracking-widest uppercase flex items-center gap-1 bg-pink-950/40 px-3 py-1 rounded-full">
+                          <Heart size={11} className="text-pink-500 fill-pink-500 animate-pulse" />
+                          Pour Lui • สำหรับเขา
                         </span>
                         
-                        <div className="space-y-1.5 py-4">
-                          <p className="text-base sm:text-lg font-black text-white leading-relaxed">
+                        <div className="space-y-3 py-4 my-auto">
+                          <p className="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed px-2">
                             {filteredPhrases[cardIndex].french}
                           </p>
-                          <p className="text-[10px] text-slate-500">
-                            (Tapez pour révéler la réponse)
+                          <p className="text-xs text-pink-400 font-bold bg-pink-500/10 px-3.5 py-1.5 rounded-full inline-block">
+                            แตะเพื่อดูคำแปล ➔
                           </p>
                         </div>
 
@@ -327,27 +337,27 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                             e.stopPropagation();
                             handleSpeak(filteredPhrases[cardIndex].french, 'fr-FR', filteredPhrases[cardIndex].id + '_fc_fr_front');
                           }}
-                          className="min-h-[38px] px-4 rounded-full bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800 transition-all flex items-center gap-1.5 text-xs font-bold"
+                          className="min-h-[44px] px-5 rounded-full bg-pink-600/15 hover:bg-pink-600/30 text-pink-300 border border-pink-500/20 transition-all flex items-center gap-1.5 text-xs font-bold"
                         >
-                          <Volume2 size={14} /> <span>Écouter 🇫🇷</span>
+                          <Volume2 size={15} /> <span>Écouter 🇫🇷</span>
                         </button>
                       </div>
 
                       {/* CARD BACK: English Answer */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-[#1B1116] to-[#121214] rounded-2xl p-6 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border border-pink-950/20">
-                        <span className="text-[9px] font-bold text-amber-400 tracking-widest uppercase flex items-center gap-1">
-                          <Sparkles size={10} className="text-amber-500" />
-                          Réponse en Anglais 🇬🇧
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#2E1825] to-[#140C12] rounded-2xl p-6 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border border-pink-500/30 shadow-2xl">
+                        <span className="text-[10px] font-black text-amber-300 tracking-widest uppercase flex items-center gap-1 bg-amber-950/40 px-3 py-1 rounded-full">
+                          <Sparkles size={11} className="text-amber-400 animate-bounce" />
+                          English 🇬🇧 เฉลย
                         </span>
 
-                        <div className="space-y-3 w-full py-2">
-                          <p className="text-lg sm:text-xl font-black text-white leading-snug">
+                        <div className="space-y-4 w-full my-auto py-2">
+                          <p className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug tracking-tight px-1">
                             {filteredPhrases[cardIndex].english}
                           </p>
                           
                           {/* Reference translation in Thai */}
-                          <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-900 max-w-[95%] mx-auto">
-                            <p className="text-xs text-pink-300 font-bold">
+                          <div className="bg-[#120A10]/90 p-3 rounded-xl border border-white/5 max-w-[95%] mx-auto shadow-inner">
+                            <p className="text-xs text-pink-300 font-extrabold">
                               🇹🇭 {filteredPhrases[cardIndex].thai}
                             </p>
                             <p className="text-[10px] text-slate-400 italic mt-0.5">
@@ -362,19 +372,19 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                               e.stopPropagation();
                               handleSpeak(filteredPhrases[cardIndex].english, 'en-US', filteredPhrases[cardIndex].id + '_fc_en_back');
                             }}
-                            className="min-h-[38px] px-3.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-900/30 transition-colors flex items-center gap-1.5 text-xs font-bold"
+                            className="min-h-[44px] px-5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-900/30 transition-colors flex items-center gap-1.5 text-xs font-bold"
                           >
-                            <Volume2 size={14} />
-                            <span>Écouter 🇬🇧</span>
+                            <Volume2 size={15} />
+                            <span>Listen 🇬🇧</span>
                           </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCopy(filteredPhrases[cardIndex].english, filteredPhrases[cardIndex].id + '_fc_copy');
                             }}
-                            className="p-2 rounded-full bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors"
+                            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 flex items-center justify-center transition-colors"
                           >
-                            <Copy size={14} />
+                            <Copy size={15} />
                           </button>
                         </div>
                       </div>
@@ -385,18 +395,21 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                   {flashcardRole === 'her' && (
                     <>
                       {/* CARD FRONT: Thai */}
-                      <div className="absolute inset-0 bg-[#141416] border border-slate-855 rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden]">
-                        <span className="text-[9px] font-bold text-pink-400 tracking-widest uppercase flex items-center gap-1">
-                          <Heart size={10} className="text-pink-500 fill-pink-500" />
-                          สำหรับเธอ (แตะเพื่อดูเฉลย)
+                      <div className="absolute inset-0 bg-[#1D161E]/95 border border-pink-500/20 rounded-2xl p-6 flex flex-col justify-between items-center text-center backface-hidden [backface-visibility:hidden] shadow-inner">
+                        <span className="text-[10px] font-black text-pink-400 tracking-widest uppercase flex items-center gap-1 bg-pink-950/40 px-3 py-1 rounded-full">
+                          <Heart size={11} className="text-pink-500 fill-pink-500 animate-pulse" />
+                          Pour Elle • สำหรับเธอ
                         </span>
                         
-                        <div className="space-y-1.5 py-4">
-                          <p className="text-lg sm:text-xl font-black text-white leading-relaxed">
+                        <div className="space-y-3 py-4 my-auto">
+                          <p className="text-lg sm:text-xl md:text-2xl font-black text-white leading-relaxed px-2">
                             {filteredPhrases[cardIndex].thai}
                           </p>
-                          <p className="text-xs text-slate-400 italic">
+                          <p className="text-xs text-pink-300 italic font-medium px-4">
                             {filteredPhrases[cardIndex].thaiPhonetic}
+                          </p>
+                          <p className="text-xs text-pink-400 font-bold bg-pink-500/10 px-3.5 py-1.5 rounded-full inline-block mt-2">
+                            แตะเพื่อดูเฉลยภาษาอังกฤษ ➔
                           </p>
                         </div>
 
@@ -405,26 +418,26 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                             e.stopPropagation();
                             handleSpeak(filteredPhrases[cardIndex].thai, 'th-TH', filteredPhrases[cardIndex].id + '_fc_th_front');
                           }}
-                          className="min-h-[38px] px-4 rounded-full bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800 transition-all flex items-center gap-1.5 text-xs font-bold"
+                          className="min-h-[44px] px-5 rounded-full bg-pink-600/15 hover:bg-pink-600/30 text-pink-300 border border-pink-500/20 transition-all flex items-center gap-1.5 text-xs font-bold"
                         >
-                          <Volume2 size={14} /> <span>ฟังเสียง 🇹🇭</span>
+                          <Volume2 size={15} /> <span>ฟังเสียง 🇹🇭</span>
                         </button>
                       </div>
 
                       {/* CARD BACK: English Answer */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-[#1B1116] to-[#121214] rounded-2xl p-6 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border border-pink-950/20">
-                        <span className="text-[9px] font-bold text-amber-400 tracking-widest uppercase flex items-center gap-1">
-                          <Sparkles size={10} className="text-amber-500" />
-                          เฉลยภาษาอังกฤษ 🇬🇧
+                      <div className="absolute inset-0 bg-gradient-to-b from-[#2E1825] to-[#140C12] rounded-2xl p-6 flex flex-col justify-between items-center text-center [transform:rotateY(180deg)] [backface-visibility:hidden] border border-pink-500/30 shadow-2xl">
+                        <span className="text-[10px] font-black text-amber-300 tracking-widest uppercase flex items-center gap-1 bg-amber-950/40 px-3 py-1 rounded-full">
+                          <Sparkles size={11} className="text-amber-400 animate-bounce" />
+                          English 🇬🇧 เฉลย
                         </span>
 
-                        <div className="space-y-3 w-full py-2">
-                          <p className="text-lg sm:text-xl font-black text-white leading-snug">
+                        <div className="space-y-4 w-full my-auto py-2">
+                          <p className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug tracking-tight px-1">
                             {filteredPhrases[cardIndex].english}
                           </p>
                           
                           {/* Reference translation in French */}
-                          <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-900 max-w-[95%] mx-auto">
+                          <div className="bg-[#120A10]/90 p-3 rounded-xl border border-white/5 max-w-[95%] mx-auto shadow-inner">
                             <p className="text-xs text-pink-300 font-semibold">
                               🇫🇷 {filteredPhrases[cardIndex].french}
                             </p>
@@ -437,18 +450,18 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                               e.stopPropagation();
                               handleSpeak(filteredPhrases[cardIndex].english, 'en-US', filteredPhrases[cardIndex].id + '_fc_en_her');
                             }}
-                            className="min-h-[38px] px-3.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-900/30 transition-colors flex items-center gap-1.5 text-xs font-bold"
+                            className="min-h-[44px] px-5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-900/30 transition-colors flex items-center gap-1.5 text-xs font-bold"
                           >
-                            <Volume2 size={14} /> <span>ฟังเสียง 🇬🇧</span>
+                            <Volume2 size={15} /> <span>Listen 🇬🇧</span>
                           </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleCopy(filteredPhrases[cardIndex].english, filteredPhrases[cardIndex].id + '_fc_copy_en_her');
                             }}
-                            className="p-2 rounded-full bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-colors"
+                            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 flex items-center justify-center transition-colors"
                           >
-                            <Copy size={14} />
+                            <Copy size={15} />
                           </button>
                         </div>
                       </div>
@@ -456,26 +469,26 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                   )}
                 </div>
 
-                {/* Fullscreen Navigation footer - comfortable thumb placement */}
-                <div className="flex items-center justify-between px-2 pt-2">
+                {/* Fullscreen Navigation footer - comfortable thumb placement and larger hit area */}
+                <div className="flex items-center justify-between px-1 pt-1">
                   <button 
                     onClick={prevCard}
-                    className="min-h-[44px] px-5 bg-slate-900 border border-slate-800 hover:bg-slate-850 rounded-xl text-xs font-bold text-slate-300 transition-all flex-1 mr-3 max-w-[120px] flex items-center justify-center"
+                    className="min-h-[48px] px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-[11px] font-black text-slate-300 active:scale-95 transition-all flex-1 mr-3 max-w-[140px] flex items-center justify-center text-center"
                     id="btn-fc-prev"
                   >
-                    Précédent
+                    ย้อนกลับ • Précédent
                   </button>
                   
-                  <span className="text-xs font-semibold text-slate-400 whitespace-nowrap">
+                  <span className="text-xs font-black text-pink-300 whitespace-nowrap bg-pink-950/40 px-3 py-2 rounded-full border border-pink-500/20">
                     {cardIndex + 1} / {filteredPhrases.length}
                   </span>
                   
                   <button 
                     onClick={nextCard}
-                    className="min-h-[44px] px-5 bg-pink-600 hover:bg-pink-700 active:bg-pink-800 text-white rounded-xl text-xs font-bold transition-all flex-1 ml-3 max-w-[120px] flex items-center justify-center"
+                    className="min-h-[48px] px-4 bg-pink-600 hover:bg-pink-700 active:bg-pink-800 text-white rounded-2xl text-[11px] font-black active:scale-95 transition-all flex-1 ml-3 max-w-[140px] flex items-center justify-center text-center shadow-lg shadow-pink-600/20"
                     id="btn-fc-next"
                   >
-                    Suivant
+                    ถัดไป • Suivant
                   </button>
                 </div>
               </div>
