@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LOVERS_PHRASES } from '../data/phrases';
 import { CustomPhrase, LoversPhrase } from '../types';
 import { 
@@ -24,7 +24,8 @@ import {
   X,
   Flame,
   Moon,
-  Smile
+  Smile,
+  FastForward
 } from 'lucide-react';
 
 interface LoversSpaceProps {
@@ -47,6 +48,11 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
   const [flashcardRole, setFlashcardRole] = useState<'him' | 'her'>('her');
   const [cardIndex, setCardIndex] = useState<number>(0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
+
+  // Long press timer & state (2 seconds to skip to next card)
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressTriggeredRef = useRef<boolean>(false);
+  const [isPressing, setIsPressing] = useState<boolean>(false);
 
   // Lesson mode filters
   const [selectedLessonCategory, setSelectedLessonCategory] = useState<string>('Tous');
@@ -227,6 +233,45 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
     }, 200);
   };
 
+  // Long press handler (2 seconds to skip to next card)
+  const handleTouchStart = () => {
+    isLongPressTriggeredRef.current = false;
+    setIsPressing(true);
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressTriggeredRef.current = true;
+      setIsPressing(false);
+      // Trigger subtle haptic vibration if supported on mobile
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try {
+          navigator.vibrate(60);
+        } catch {
+          // ignore
+        }
+      }
+      if (onNotify) {
+        onNotify('Passage à la carte suivante (appui 2s) • ถัดไป');
+      }
+      nextCard();
+    }, 2000);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    setIsPressing(false);
+  };
+
+  const handleCardClick = () => {
+    // If a long press was triggered, ignore the click to avoid flipping
+    if (isLongPressTriggeredRef.current) {
+      isLongPressTriggeredRef.current = false;
+      return;
+    }
+    setIsFlipped(!isFlipped);
+  };
+
   // Filter phrases for Lesson mode
   const lessonPhrases = allPhrasesCombined.filter(p => {
     const matchesCat = selectedLessonCategory === 'Tous' || p.category === selectedLessonCategory;
@@ -332,85 +377,48 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
   // =========================================================================
   if (currentView === 'flashcard_setup') {
     return (
-      <div className="w-full max-w-2xl mx-auto space-y-6 py-2 animate-fade-in" id="flashcard-setup-screen">
-        {/* Navigation Back */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="w-full max-w-xl mx-auto flex flex-col justify-between min-h-[calc(100dvh-130px)] py-2 sm:py-4 animate-fade-in select-none gap-3 sm:gap-4" id="flashcard-setup-screen">
+        {/* Navigation Back & Count Badge */}
+        <div className="flex items-center justify-between border-b border-white/10 pb-2.5 shrink-0">
           <button
             onClick={() => setCurrentView('home')}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 active:scale-95 text-slate-200 hover:text-white rounded-xl text-xs sm:text-sm font-black flex items-center gap-2 border border-white/15 transition-all"
+            className="px-4 py-2 bg-white/10 hover:bg-white/20 active:scale-95 text-slate-200 hover:text-white rounded-xl text-sm sm:text-base font-black flex items-center gap-2 border border-white/15 transition-all"
             id="btn-back-to-home"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={18} />
             <span>Accueil • หน้าแรก</span>
           </button>
 
-          <span className="text-xs sm:text-sm font-black text-pink-300 bg-pink-950/70 px-3.5 py-1.5 rounded-full border border-pink-500/30">
-            {flashcardPhrasesPool.length} phrases disponibles
+          <span className="text-sm font-black text-pink-300 bg-pink-950/70 px-4 py-1.5 rounded-full border border-pink-500/30">
+            {flashcardPhrasesPool.length} / {allPhrasesCombined.length} phrases
           </span>
         </div>
 
-        {/* Title Banner */}
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+        {/* Title Header - Much larger text */}
+        <div className="text-center space-y-1 sm:space-y-2 shrink-0 my-1">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
             Choisir les thématiques
           </h2>
-          <p className="text-lg sm:text-2xl font-black text-pink-300">
+          <p className="text-2xl sm:text-3xl md:text-4xl font-black text-pink-300 tracking-wide">
             เลือกหมวดหมู่ที่ต้องการฝึก
           </p>
-          <p className="text-xs sm:text-sm text-slate-400">
-            Sélectionnez une ou plusieurs catégories pour votre session de révision.
-          </p>
         </div>
 
-        {/* Role toggle */}
-        <div className="bg-[#161618] p-3 rounded-2xl border border-slate-800 space-y-2">
-          <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider block text-center">
-            Sens d'apprentissage • ทิศทางการเรียนรู้
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setFlashcardRole('her')}
-              className={`min-h-[48px] py-2 px-3 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 ${
-                flashcardRole === 'her'
-                  ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 border border-pink-400'
-                  : 'bg-[#111113] text-slate-400 border border-slate-800 hover:bg-slate-800'
-              }`}
-              id="btn-setup-role-her"
-            >
-              <Heart size={15} />
-              <span>Pour Elle (🇹🇭 ➔ 🇬🇧)</span>
-            </button>
-
-            <button
-              onClick={() => setFlashcardRole('him')}
-              className={`min-h-[48px] py-2 px-3 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-1.5 ${
-                flashcardRole === 'him'
-                  ? 'bg-pink-600 text-white shadow-lg shadow-pink-600/30 border border-pink-400'
-                  : 'bg-[#111113] text-slate-400 border border-slate-800 hover:bg-slate-800'
-              }`}
-              id="btn-setup-role-him"
-            >
-              <Heart size={15} />
-              <span>Pour Lui (🇫🇷 ➔ 🇬🇧)</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Category Selector Grid */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+        {/* Category Selector Grid - 2 columns with significantly larger fonts */}
+        <div className="flex-1 flex flex-col justify-center space-y-2.5 min-h-0">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-300">
               Thématiques ({selectedFcCategories.length}/4)
             </span>
             <button
               onClick={selectAllFcCategories}
-              className="text-xs font-bold text-pink-400 hover:text-pink-300 underline"
+              className="text-xs sm:text-sm font-bold text-pink-400 hover:text-pink-300 underline"
             >
               Tout sélectionner / เลือกทั้งหมด
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             {categories.map(cat => {
               const isSelected = selectedFcCategories.includes(cat.id);
               const Icon = cat.icon;
@@ -419,36 +427,37 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
                 <button
                   key={cat.id}
                   onClick={() => toggleFcCategory(cat.id)}
-                  className={`p-4 rounded-2xl border-2 transition-all flex items-center justify-between text-left ${
+                  className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col justify-between min-h-[110px] sm:min-h-[135px] text-left relative overflow-hidden ${
                     isSelected
-                      ? 'bg-gradient-to-r ' + cat.color + ' border-pink-500 shadow-lg ring-1 ring-pink-500/30'
+                      ? 'bg-gradient-to-br ' + cat.color + ' border-pink-500 shadow-lg ring-1 ring-pink-500/30'
                       : 'bg-[#141416] border-slate-800 text-slate-400 hover:bg-slate-850'
                   }`}
                   id={`btn-select-topic-${cat.id}`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-start justify-between w-full">
                     <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-pink-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                      <Icon size={20} />
+                      <Icon size={22} />
                     </div>
-                    <div>
-                      <p className={`text-base sm:text-lg font-black ${isSelected ? 'text-white' : 'text-slate-300'}`}>
-                        {cat.fr}
-                      </p>
-                      <p className="text-sm sm:text-base font-bold text-pink-300">
-                        {cat.th}
-                      </p>
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        {count} phrases
-                      </span>
+
+                    <div className="text-pink-400">
+                      {isSelected ? (
+                        <CheckSquare size={24} className="text-pink-500" />
+                      ) : (
+                        <Square size={24} className="text-slate-600" />
+                      )}
                     </div>
                   </div>
 
-                  <div className="text-pink-400">
-                    {isSelected ? (
-                      <CheckSquare size={24} className="text-pink-500" />
-                    ) : (
-                      <Square size={24} className="text-slate-600" />
-                    )}
+                  <div className="mt-2 space-y-0.5">
+                    <p className={`text-lg sm:text-2xl font-black leading-tight ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                      {cat.fr}
+                    </p>
+                    <p className="text-base sm:text-xl font-bold text-pink-300 leading-tight">
+                      {cat.th}
+                    </p>
+                    <span className="text-xs sm:text-sm text-slate-400 font-semibold block pt-0.5">
+                      {count} phrases
+                    </span>
                   </div>
                 </button>
               );
@@ -456,15 +465,15 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
           </div>
         </div>
 
-        {/* Big Launch Button */}
-        <div className="pt-4">
+        {/* Big Launch Button - Fixed and visible immediately with larger typography */}
+        <div className="shrink-0 pt-2">
           <button
             onClick={startFlashcards}
             disabled={flashcardPhrasesPool.length === 0}
-            className="w-full min-h-[64px] sm:min-h-[72px] rounded-2xl bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 hover:from-pink-500 hover:to-rose-500 active:scale-[0.98] text-white font-black text-lg sm:text-2xl flex items-center justify-center gap-3 shadow-2xl shadow-pink-600/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full min-h-[64px] sm:min-h-[72px] rounded-2xl bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 hover:from-pink-500 hover:to-rose-500 active:scale-[0.98] text-white font-black text-lg sm:text-2xl flex items-center justify-center gap-3 shadow-xl shadow-pink-600/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             id="btn-start-flashcards"
           >
-            <Play size={26} className="fill-white" />
+            <Play size={24} className="fill-white" />
             <span>Lancer les Flashcards ({flashcardPhrasesPool.length}) • เริ่มฝึก</span>
           </button>
         </div>
@@ -547,12 +556,32 @@ export default function LoversSpace({ onNotify }: LoversSpaceProps) {
             <div className="w-full flex-1 flex flex-col justify-between min-h-0 gap-2">
               {/* 3D Flip Card */}
               <div 
-                onClick={() => setIsFlipped(!isFlipped)}
+                onClick={handleCardClick}
+                onMouseDown={handleTouchStart}
+                onMouseUp={handleTouchEnd}
+                onMouseLeave={handleTouchEnd}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onTouchCancel={handleTouchEnd}
                 className={`relative w-full flex-1 min-h-[340px] rounded-3xl cursor-pointer select-none transition-all duration-500 [transform-style:preserve-3d] ${
                   isFlipped ? '[transform:rotateY(180deg)] shadow-2xl' : 'shadow-2xl border border-white/15'
                 }`}
                 id="flashcard-body"
               >
+                {/* Hold progress indicator bar - Left to Right filling */}
+                {isPressing && (
+                  <div className="absolute top-0 left-0 right-0 h-3 bg-black/40 rounded-t-3xl overflow-hidden z-30 pointer-events-none">
+                    <div className="h-full bg-gradient-to-r from-pink-500 via-rose-400 to-amber-300 animate-hold-progress origin-left" />
+                  </div>
+                )}
+
+                {/* Hold 2s visual badge banner when pressing */}
+                {isPressing && (
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 bg-black/90 backdrop-blur-md px-6 py-3.5 rounded-2xl border border-pink-500 text-pink-200 text-sm sm:text-base font-black flex items-center gap-2.5 shadow-2xl animate-pulse pointer-events-none whitespace-nowrap">
+                    <FastForward size={22} className="text-pink-400 animate-spin" />
+                    <span>Maintien 2s : Carte suivante ➔</span>
+                  </div>
+                )}
                 {/* --- ROLE: HIM (Français ➔ Anglais) --- */}
                 {flashcardRole === 'him' && (
                   <>
